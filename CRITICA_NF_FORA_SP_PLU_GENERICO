@@ -1,0 +1,28 @@
+Ticket: 695411
+Solicitada por: Fernanda N.
+
+FOR A IN (
+    SELECT X.*
+      FROM OR_NFDESPESA X
+      INNER JOIN GE_PESSOA FORNEC
+          ON FORNEC.SEQPESSOA = X.SEQPESSOA
+      INNER JOIN GE_PESSOA LJ
+          ON LJ.SEQPESSOA = X.NROEMPRESA
+      INNER JOIN OR_NFITENSDESPESA I
+          ON I.SEQNOTA = X.SEQNOTA
+     WHERE 1 = 1
+       AND FORNEC.UF != 'SP'
+       AND I.CODPRODUTO IN (273217, 273195)
+       AND X.NROEMPRESA = vnEmpresa
+       AND X.SEQNOTA = pnSeqnota
+)
+LOOP
+   INSERT INTO ORX_NFDESPESAINCONSISTCUST
+       (SEQINCONSIST, MOTIVO, SITUACAO)
+   VALUES
+       (807,
+        'Nota fora do estado de SP vinculada a PLU genérico (273217 ou 273195). Corrigir antes do lançamento.',
+        'P');
+   pnOk := 1;
+END LOOP;
+ 
