@@ -1,0 +1,20 @@
+-- Solicitação Denise
+Ticket: 742321
+FOR a IN (SELECT *
+                FROM OR_NFDESPESA N
+               WHERE 1 = 1
+                 AND DTAEMISSAO < TRUNC(SYSDATE) - 90
+                 AND N.NROEMPRESA = vnEmpresa
+                 AND N.SEQNOTA    = pnSeqnota)
+    LOOP
+      INSERT INTO ORX_NFDESPESAINCOSISTCUST
+        (SEQINCONSIST, MOTIVO, SITUACAO)
+      VALUES
+        (809,'Data de emissão anterior à 90 dias, Verifique!', 'P');
+     
+      pnOk := 1;
+    END LOOP;
+
+EXCEPTION
+    WHEN OTHERS THEN
+        pnOk := 0;
