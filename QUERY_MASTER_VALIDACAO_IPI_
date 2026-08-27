@@ -1,0 +1,31 @@
+-- Ticket: 764493
+-- Solicitado por: Dani
+-- Regra solicitada: "Quando a Alíquota Padrão de Entrada for diferente da Alíquota de Saída, o item deverá ser apresentado na Query para conferência."
+////
+--Adiciona 
+CASE WHEN INC25 IS NOT NULL THEN ' | '||INC25 ELSE NULL END na parte de cima da view: NAGV_MASTER_VALID_CADASTROS
+
+--Adiciona o select dps do último INC, no meu caso o INC24 (adiciona a virgula no último INC burro)
+
+CASE WHEN EXISTS (
+          SELECT 1 FROM MAP_FAMILIA F
+           WHERE F.ALIQUOTAIPI IS NOT NULL <- alíquota de ipi estiver preenchida
+             AND F.PERALIQUOTAIPI IS NOT NULL <- percentual de alíquota de ipi tb estiver preenchido
+             AND F.ALIQUOTAIPI != F.PERALIQUOTAIPI <- e a alíquota de entrada for diferente da de saída 
+             AND F.SEQFAMILIA = MP.SEQFAMILIA)
+          THEN 'IPI - Alíquota de saída diferente da entrada.' END INC25 <- da pau kk
+
+-- tb adicionar o INC correspondente no Coalesce 
+
+-- confere se deu certo usando algum produto de exemplo:
+
+SELECT * FROM consinco.NAGV_MASTER_VALID_CADASTROS WHERE PLU IN (214129, 219300, 219301, 219304, 219308, 263039, 265783);
+
+ SELECT X.ALIQUOTAIPI, X.PERALIQUOTAIPI FROM consinco.MAP_FAMILIA X
+ INNER JOIN consinco.MAP_PRODUTO Y
+ ON Y.SEQFAMILIA = X.SEQFAMILIA
+ WHERE X.ALIQUOTAIPI IS NOT NULL
+ AND X.PERALIQUOTAIPI IS NOT NULL
+ AND X.ALIQUOTAIPI != X.PERALIQUOTAIPI
+ AND X.SEQFAMILIA = Y.SEQFAMILIA
+ AND Y.SEQPRODUTO IN (214129, 219300, 219301, 219304, 219308, 263039, 265783)
